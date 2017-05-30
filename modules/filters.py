@@ -2,17 +2,18 @@ from pylab import *
 import numpy.fft as fft
 import scipy.signal as signal
 
-filterOrder = 1024
-samplingFreq = 250
-Nyquist = samplingFreq / 2
+def maxAmplitude(spectrum):
+	return max(abs(min(spectrum)), max(spectrum))
 
+def maxAmplitudeFreq(spectrum):
+	return spectrum.index(maxAmplitude(spectrum))
 
 def genXspectrum(size, NF):
-	t = []
+	w = []
 	step = float(NF) / float(size)
 	for i in range(size):
-		t.append(i * step)
-	return t
+		w.append(i * step)
+	return w
 
 def genXsignal(size, samplingFreq):
 	# print("Generated x")
@@ -61,24 +62,3 @@ def bpsFilterSignal(rawSignal, fromBound, toBound, NF):
 
 def normalizeList(arr):
 	return [a / max(arr) for a in arr]
-
-# Signal
-rawSignal = readSignal('signal.txt')
-filteredSignal = filterAlphaRhythm(rawSignal, Nyquist)
-filteredSignal = normalizeList(filteredSignal)
-subplot(211)
-plot(genXsignal(len(filteredSignal), samplingFreq), filteredSignal)
-title("Filtered")
-
-# Debug
-print("Length of filtered = " + str(len(filteredSignal)))
-print("Length of raw = " + str(len(rawSignal)))
-
-# Spectrum
-spectrumRaw = fft.fft(filteredSignal)
-spectrum = spectrumRaw[0:(filterOrder / 2)]
-spectrum = normalizeList(spectrum)
-subplot(212)
-plot(genXspectrum(len(spectrum), Nyquist), spectrum)
-title("Spectrum")
-show()
