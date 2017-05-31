@@ -5,8 +5,9 @@ import scipy.signal as signal
 def maxAmplitude(spectrum):
 	return max(abs(min(spectrum)), max(spectrum))
 
-def maxAmplitudeFreq(spectrum):
-	return spectrum.index(maxAmplitude(spectrum))
+def maxAmplitudeFreq(spectrum, NF):
+	index = spectrum.index(maxAmplitude(spectrum)) 
+	return index / len(spectrum) * NF
 
 def genXspectrum(size, NF):
 	w = []
