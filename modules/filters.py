@@ -1,6 +1,17 @@
 from pylab import *
 import numpy.fft as fft
 import scipy.signal as signal
+import functools
+
+class Rhythms:
+	alphaFrom = 9
+	alphaTo = 13
+	beta1From = 14
+	beta1To = 19
+	beta2From = 20
+	beta2To = 30
+	gammaFrom = 40
+	gammaTo = 60
 
 def maxAmplitude(spectrum):
 	return max(abs(min(spectrum)), max(spectrum))
@@ -9,10 +20,32 @@ def maxAmplitudeFreq(spectrum, NF):
 	index = spectrum.index(maxAmplitude(spectrum)) 
 	return index / len(spectrum) * NF
 
+def averageAmplitudeInRange(spectrum, fromBound, toBound, NF):
+	subSpectrum = getSubSpectrum(spectrum, fromBound, toBound, NF)
+	return averageAmplitude(subSpectrum)
+
+def averageAmplitude(spectrum):
+	return float(sum(spectrum)) / len(spectrum)
+
+def getSubSpectrum(spectrum, fromBound, toBound, NF):
+	fromIndex = round((fromBound / NF) * len(spectrum))
+	toIndex = round((toBound / NF) * len(spectrum))
+	return spectrum[fromIndex:toIndex]
+
+def weightedAverageAmplitude(spectrum, fromBound, toBound, NF):
+	subSpectrum = getSubSpectrum(spectrum, fromBound, toBound, NF)
+	avAmp = averageAmplitude(subSpectrum)
+	m = len(subSpectrum)
+	s = sum(subSpectrum)
+	specSum = 0
+	for i in range(len(subSpectrum)):
+		specSum += i * subSpectrum[i]
+	return fromBound + len(subSpectrum) * (specSum / (avAmp * m))
+
 def genXspectrum(size, NF):
 	w = []
 	step = float(NF) / float(size)
-	for i in range(size):
+	for i in range(size): 
 		w.append(i * step)
 	return w
 
@@ -40,19 +73,19 @@ def mfreqz(b,a=1):
 	ylabel('Magnitude (db)')
 	xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
 	ylim(-75, 5)
-	title(r'Frequency response')
+	title('Frequency response')
 
 def filterAlphaRhythm(rawSignal, NF):
-	return bpsFilterSignal(rawSignal, 8, 13, NF)
+	return bpsFilterSignal(rawSignal, Rhythms.alphaFrom, Rhythms.alphaTo, NF)
 
 def filterBeta1Rhythm(rawSignal, NF):	
-	return bpsFilterSignal(rawSignal, 14, 19, NF)
+	return bpsFilterSignal(rawSignal, Rhythms.beta1From, Rhythms.beta1To, NF)
 
 def filterBeta2Rhythm(rawSignal, NF):	
-	return bpsFilterSignal(rawSignal, 20, 30, NF)
+	return bpsFilterSignal(rawSignal, Rhythms.beta2From, Rhythms.beta2To, NF)
 
 def filterGammaRhythm(rawSignal, NF):	
-	return bpsFilterSignal(rawSignal, 40, 60, NF)
+	return bpsFilterSignal(rawSignal, Rhythms.gammaFrom, Rhythms.gammaTo, NF)
 
 def bpsFilterSignal(rawSignal, fromBound, toBound, NF):
 	filterOrder = len(rawSignal)
@@ -63,3 +96,6 @@ def bpsFilterSignal(rawSignal, fromBound, toBound, NF):
 
 def normalizeList(arr):
 	return [a / max(arr) for a in arr]
+
+def getAmplitudeSpectrum(spectrum):
+	return [abs(a) for a in spectrum]
