@@ -50,7 +50,6 @@ def genXspectrum(size, NF):
 	return w
 
 def genXsignal(size, samplingFreq):
-	# print("Generated x")
 	t = []
 	step = float(size) / float(samplingFreq) / float(size)
 	for i in range(size):
@@ -63,6 +62,7 @@ def readSignal(filePath):
 	for line in signal:
 		ws = float(line)
 		wss.append(ws)
+	# print(str(wss))
 	return wss
 
 def mfreqz(b,a=1):
@@ -95,7 +95,10 @@ def bpsFilterSignal(rawSignal, fromBound, toBound, NF):
 	return signal.convolve(ir, rawSignal, mode='same')
 
 def normalizeList(arr):
-	return [a / max(arr) for a in arr]
+	av = averageAmplitude(arr)
+	l = [a - av for a in arr]
+	# print(str(l))
+	return l
 
 def getAmplitudeSpectrum(spectrum):
 	return [abs(a) for a in spectrum]
