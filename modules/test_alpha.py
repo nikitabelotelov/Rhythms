@@ -14,7 +14,7 @@ rawSignal = normalizeList(rawSignal)
 filterOrder = len(rawSignal)
 
 # Filter
-filteredSignal = filterBeta1Rhythm(rawSignal, Nyquist)
+filteredSignal = filterAlphaRhythm(rawSignal, Nyquist)
 # filteredSignal = bpsFilterSignal(rawSignal, 5, 14, Nyquist)
 # filteredSignal = normalizeList(filteredSignal)
 # subplot(211)
@@ -54,10 +54,10 @@ plot(genXspectrum(len(spectrumFilteredCropped), nyquistCropped), spectrumFiltere
 # Spectrum characteristics
 maxAmp = maxAmplitude(spectrumFiltered).real
 maxAmpFreq = maxAmplitudeFreq(spectrumFiltered, Nyquist)
-avAmp = averageAmplitudeInRange(spectrumFiltered, Rhythms.beta1From, Rhythms.beta1To, Nyquist)
+avAmp = averageAmplitudeInRange(spectrumFiltered, Rhythms.alphaFrom, Rhythms.alphaTo, Nyquist)
 print("Max amplitude: " + str(maxAmp) + "\nFrequency: " + str(maxAmpFreq))
 print("Average amplitude: " + str(avAmp))
 # print("Weighted average: " + str(weightedAverageAmplitude(spectrumFiltered, Rhythms.beta1From, Rhythms.beta1To, Nyquist)))
-print("Weighted average: " + str(np.average(range(Rhythms.beta1From, Rhythms.beta1To), weights=getSubSpectrum(spectrum, Rhythms.beta1From, Rhythms.beta1To, Nyquist))))
+print("Weighted average: " + str(np.average(range(Rhythms.alphaFrom, Rhythms.alphaTo), weights=getSubSpectrum(spectrum, Rhythms.alphaFrom, Rhythms.alphaTo, Nyquist))))
 
 show()

@@ -28,19 +28,23 @@ def averageAmplitude(spectrum):
 	return float(sum(spectrum)) / len(spectrum)
 
 def getSubSpectrum(spectrum, fromBound, toBound, NF):
+	# print(str(len(spectrum)))
 	fromIndex = round((fromBound / NF) * len(spectrum))
 	toIndex = round((toBound / NF) * len(spectrum))
+	# print('from' + str(fromIndex))
+	# print('to' + str(toIndex))
 	return spectrum[fromIndex:toIndex]
 
 def weightedAverageAmplitude(spectrum, fromBound, toBound, NF):
 	subSpectrum = getSubSpectrum(spectrum, fromBound, toBound, NF)
 	avAmp = averageAmplitude(subSpectrum)
+	# print('avamp' + str(avAmp))
+	# print('avinrange' + str(averageAmplitudeInRange(spectrum, fromBound, toBound, NF)))
 	m = len(subSpectrum)
-	s = sum(subSpectrum)
 	specSum = 0
 	for i in range(len(subSpectrum)):
-		specSum += i * subSpectrum[i]
-	return fromBound + len(subSpectrum) * (specSum / (avAmp * m))
+		specSum += (i + 1) * subSpectrum[i]
+	return fromBound - len(subSpectrum) * (specSum / (avAmp * m))
 
 def genXspectrum(size, NF):
 	w = []
@@ -72,7 +76,7 @@ def mfreqz(b,a=1):
 	plot(w/max(w),h_dB)
 	ylabel('Magnitude (db)')
 	xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
-	ylim(-75, 5)
+	ylim(-100, 5)
 	title('Frequency response')
 
 def filterAlphaRhythm(rawSignal, NF):
@@ -88,11 +92,14 @@ def filterGammaRhythm(rawSignal, NF):
 	return bpsFilterSignal(rawSignal, Rhythms.gammaFrom, Rhythms.gammaTo, NF)
 
 def bpsFilterSignal(rawSignal, fromBound, toBound, NF):
+	ir = bpsIR(rawSignal, fromBound, toBound, NF)
+	return signal.convolve(ir, rawSignal, mode='same')
+
+def bpsIR(rawSignal, fromBound, toBound, NF):
 	filterOrder = len(rawSignal)
 	lps = signal.firwin(filterOrder, cutoff=fromBound, nyq=NF, window="hamming")
 	hps = signal.firwin(filterOrder, cutoff=toBound, nyq=NF, window="hamming")
-	ir = -(lps - hps)
-	return signal.convolve(ir, rawSignal, mode='same')
+	return -(lps - hps)
 
 def normalizeList(arr):
 	av = averageAmplitude(arr)
